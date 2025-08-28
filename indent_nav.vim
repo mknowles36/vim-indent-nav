@@ -39,6 +39,31 @@ function! SkipToNextIndentBlock()
     endwhile
 endfunction
 
+" Function to create a motion for an operator that selects the current line
+" and any subsequent lines that have a greater indentation level.
+function! s:SelectIndentBlockOperator()
+    " Enter linewise visual mode. The pending operator will act on this selection.
+    normal! V
+
+    let start_line = line("'<") " Get start of visual selection
+    let start_indent = s:GetIndent(start_line)
+    let last_file_line = line('$')
+
+    let end_line = start_line
+    let check_line = start_line + 1
+
+    " Find the end of the indented block
+    while check_line <= last_file_line && s:GetIndent(check_line) > start_indent
+        let end_line = check_line
+        let check_line += 1
+    endwhile
+
+    " Move the cursor to the end of the block to extend the visual selection.
+    if end_line > start_line
+        call cursor(end_line, 1)
+    endif
+endfunction
+
 " Function to move to the previous line with the same or lower indentation level.
 function! SkipToPrevIndentBlock()
     let current_line = line('.')
@@ -67,6 +92,9 @@ endfunction
 " noremap ensures that the mapping is not recursive.
 nnoremap <silent> j :call SkipToNextIndentBlock()<CR>
 nnoremap <silent> k :call SkipToPrevIndentBlock()<CR>
+
+" Map 'j' in operator-pending mode to select the current indented block.
+onoremap <silent> j :call s:SelectIndentBlockOperator()<CR>
 
 " --- Commands (Optional) ---
 " You could also expose these as commands if you like.
