@@ -1,6 +1,6 @@
 " indent_nav.vim
 " Author: Gemini
-" Description: A Vim plugin to navigate between lines with the same indentation level.
+" Description: A Vim plugin to navigate between lines with the same or lower indentation level.
 
 " Prevent the script from being loaded more than once
 if exists("g:loaded_indent_nav")
@@ -17,8 +17,8 @@ function! s:GetIndent(lnum)
     return indent(a:lnum)
 endfunction
 
-" Function to move to the next line with the same indentation level.
-function! SkipToNextLineWithSameIndent()
+" Function to move to the next line with the same or lower indentation level.
+function! SkipToNextIndentBlock()
     let current_line = line('.')
     let last_line = line('$')
     if current_line == last_line
@@ -29,7 +29,7 @@ function! SkipToNextLineWithSameIndent()
     let next_line = nextnonblank(current_line + 1)
 
     while next_line > 0 && next_line <= last_line
-        if s:GetIndent(next_line) == current_indent
+        if s:GetIndent(next_line) <= current_indent
             call cursor(next_line, 1)
             " Keep original column if possible, otherwise move to first non-whitespace
             normal! ^
@@ -39,8 +39,8 @@ function! SkipToNextLineWithSameIndent()
     endwhile
 endfunction
 
-" Function to move to the previous line with the same indentation level.
-function! SkipToPrevLineWithSameIndent()
+" Function to move to the previous line with the same or lower indentation level.
+function! SkipToPrevIndentBlock()
     let current_line = line('.')
     if current_line == 1
         return
@@ -50,7 +50,7 @@ function! SkipToPrevLineWithSameIndent()
     let prev_line = prevnonblank(current_line - 1)
 
     while prev_line > 0
-        if s:GetIndent(prev_line) == current_indent
+        if s:GetIndent(prev_line) <= current_indent
             call cursor(prev_line, 1)
             " Keep original column if possible, otherwise move to first non-whitespace
             normal! ^
@@ -65,10 +65,10 @@ endfunction
 " Map 'j' and 'k' to the new functions in normal mode.
 " <silent> prevents the command from being echoed in the command line.
 " noremap ensures that the mapping is not recursive.
-nnoremap <silent> j :call SkipToNextLineWithSameIndent()<CR>
-nnoremap <silent> k :call SkipToPrevLineWithSameIndent()<CR>
+nnoremap <silent> j :call SkipToNextIndentBlock()<CR>
+nnoremap <silent> k :call SkipToPrevIndentBlock()<CR>
 
 " --- Commands (Optional) ---
 " You could also expose these as commands if you like.
-command! NextIndentLine call SkipToNextLineWithSameIndent()
-command! PrevIndentLine call SkipToPrevLineWithSameIndent()
+command! NextIndentBlock call SkipToNextIndentBlock()
+command! PrevIndentBlock call SkipToPrevIndentBlock()
