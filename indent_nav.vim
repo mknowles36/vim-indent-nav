@@ -66,7 +66,15 @@ function! s:SelectIndentBlockMotion(is_visual)
 
     " Move the cursor to the end of the block to extend the visual selection.
     if end_line > start_line
-        call cursor(end_line, 1)
+        if a:is_visual
+            " Re-create the visual selection from its original start to the new end.
+            " This is necessary because calling a function via ':' exits visual mode.
+            execute "normal! " . start_line . "GV" . end_line . "G"
+        else
+            " For operator-pending mode, just moving the cursor is enough to define
+            " the motion's boundary.
+            call cursor(end_line, 1)
+        endif
     endif
 endfunction
 
