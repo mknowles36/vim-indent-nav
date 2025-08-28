@@ -39,13 +39,19 @@ function! SkipToNextIndentBlock()
     endwhile
 endfunction
 
-" Function to create a motion for an operator that selects the current line
-" and any subsequent lines that have a greater indentation level.
-function! s:SelectIndentBlockOperator()
-    " Enter linewise visual mode. The pending operator will act on this selection.
-    normal! V
+" Function to create a motion for an operator or extend a visual selection
+" to cover the current indented block.
+" @param is_visual: 1 if called from visual mode, 0 otherwise.
+function! s:SelectIndentBlockMotion(is_visual)
+    if a:is_visual
+        " In visual mode, the selection already exists. We just need the starting point.
+        let start_line = line("'<")
+    else
+        " In operator-pending mode, create a new linewise visual selection.
+        normal! V
+        let start_line = line("'<") " Get start of the new visual selection
+    endif
 
-    let start_line = line("'<") " Get start of visual selection
     let start_indent = s:GetIndent(start_line)
     let last_file_line = line('$')
 
@@ -93,9 +99,11 @@ endfunction
 nnoremap <silent> j :call SkipToNextIndentBlock()<CR>
 nnoremap <silent> k :call SkipToPrevIndentBlock()<CR>
 
-" Map 'j' in operator-pending mode to select the current indented block.
+" Map 'j' in operator-pending and visual modes to select the current indented block.
 " We use <SID> to ensure the script's context is not lost.
-onoremap <silent> j :<C-U>call <SID>SelectIndentBlockOperator()<CR>
+onoremap <silent> j :<C-U>call <SID>SelectIndentBlockMotion(0)<CR>
+xnoremap <silent> j :<C-U>call <SID>SelectIndentBlockMotion(1)<CR>
+
 
 " --- Commands (Optional) ---
 " You could also expose these as commands if you like.
