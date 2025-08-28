@@ -94,7 +94,8 @@ nnoremap <silent> j :call SkipToNextIndentBlock()<CR>
 nnoremap <silent> k :call SkipToPrevIndentBlock()<CR>
 
 " Map 'j' in operator-pending mode to select the current indented block.
-onoremap <silent> j :call s:SelectIndentBlockOperator()<CR>
+" We use <SID> to ensure the script's context is not lost.
+onoremap <silent> j :<C-U>call <SID>SelectIndentBlockOperator()<CR>
 
 " --- Commands (Optional) ---
 " You could also expose these as commands if you like.
