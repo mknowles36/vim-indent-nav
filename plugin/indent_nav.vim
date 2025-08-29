@@ -43,16 +43,22 @@ endfunction
 " to cover the current indented block.
 " @param is_visual: 1 if called from visual mode, 0 otherwise.
 function! s:SelectIndentBlockMotion(is_visual)
-    if a:is_visual
-        " In visual mode, the selection already exists. We just need the starting point.
-        let start_line = line("'<")
-    else
-        " In operator-pending mode, create a new linewise visual selection.
+    " Determine the starting line. For visual mode, it's the start of the selection ('<).
+    " For operator-pending mode, it's the current cursor position. Using line("'<")
+    " is unreliable for the first operation in a new buffer.
+    let start_line = a:is_visual ? line("'<") : line('.')
+
+    " If in operator-pending mode, we must start a visual selection so the
+    " operator has something to act upon.
+    if !a:is_visual
         normal! V
-        let start_line = line("'<") " Get start of the new visual selection
     endif
 
     let start_indent = s:GetIndent(start_line)
+    " A negative indent means an invalid line number was found. Bail out.
+    if start_indent < 0
+        return
+    endif
     let last_file_line = line('$')
 
     let end_line = start_line
@@ -64,7 +70,7 @@ function! s:SelectIndentBlockMotion(is_visual)
         let check_line += 1
     endwhile
 
-    " Move the cursor to the end of the block to extend the visual selection.
+    " Move the cursor to the end of the block, extending the selection.
     if end_line > start_line
         if a:is_visual
             " Re-create the visual selection from its original start to the new end.
