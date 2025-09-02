@@ -70,6 +70,12 @@ function! s:SelectIndentBlockMotion(is_visual)
         let check_line += 1
     endwhile
 
+    " After the block, also select any trailing blank lines.
+    while check_line <= last_file_line && getline(check_line) =~ '^\s*$'
+        let end_line = check_line
+        let check_line += 1
+    endwhile
+
     " Move the cursor to the end of the block, extending the selection.
     if end_line > start_line
         if a:is_visual
