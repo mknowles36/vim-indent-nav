@@ -116,8 +116,8 @@ endfunction
 " Map 'j' and 'k' to the new functions in normal mode.
 " <silent> prevents the command from being echoed in the command line.
 " noremap ensures that the mapping is not recursive.
-nnoremap <silent> j :call SkipToNextIndentBlock()<CR>
-nnoremap <silent> k :call SkipToPrevIndentBlock()<CR>
+"nnoremap <silent> j :call SkipToNextIndentBlock()<CR>
+"nnoremap <silent> k :call SkipToPrevIndentBlock()<CR>
 
 " Map 'j' in operator-pending and visual modes to select the current indented block.
 " We use <SID> to ensure the script's context is not lost.
